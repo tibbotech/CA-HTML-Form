@@ -1,0 +1,2 @@
+declare function get_password(byref user_name as string) as string
+declare function get_http_argument(byref http_req_string as string, byref argument as string) as string

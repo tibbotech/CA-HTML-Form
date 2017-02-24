@@ -1,0 +1,96 @@
+'*************************************************************************************************************
+'			HTML FORM DEMONSTRATION
+'*************************************************************************************************************
+'
+'	This project implements a simple HTML login form. On /index.html you enter user name and password,
+'then click <login>. Login result is displayed on the next HTML page (/login.html).
+'You can login under three user names:
+'"admin" (password "admin"), "tibbo" (password "1234"), "guest" (password "querty").
+'
+'	ATTENTION! READ THE COMMENTS IN CODE! YOU MIGHT NEED TO CHANGE THE PROGRAM! For example,
+'you may need to set correct IP address, baudrate, etc.
+'
+'Minor update so that this demo will work correctly using both the GET and POST methods.  The older version
+'did not work properly using POST method because of difference in the value passed from the sock.httprqstring.
+'
+'under GET it is "user_name=admin&pasword=admin HTTP/1.1 "
+'under POST it is "user_name=admin&password=admin"
+'notice the difference between the two and how it is also missing the ending empty space.  So the code was
+'modified to add an extra ending space to the http_req_string variable in the login.html page.
+'
+'RD.101507
+'*************************************************************************************************************
+
+
+
+'=============================================================
+sub on_sys_init
+'This event is always generated first. We use it to initialize
+'our program.
+
+	dim f as byte
+
+	net.ip = "192.168.1.95" '' set IP address <<<<<<<< YOU MIGHT NEED TO CHANGE THIS
+	
+	' set up HTTP sockets (we setup 4 of them)
+	for f = 0 to 3
+		sock.num = f
+		
+		'for HTTP to work, we need to request memory for RX, TX, and VAR buffers
+		sock.rxbuffrq(1)
+		sock.txbuffrq(1)
+		sock.varbuffrq(1)
+		
+		'setup the socket itself
+		sock.protocol=PL_SOCK_PROTOCOL_TCP
+		sock.inconmode=PL_SOCK_INCONMODE_ANY_IP_ANY_PORT
+		sock.httpportlist="80"
+	next f
+	
+	'actual buffer memory allocation
+	sys.buffalloc 
+end sub
+
+
+'=============================================================
+public function get_password(byref user_name as string) as string
+'This is our own function. We find the password depending on the
+'user name entered
+
+	select case user_name
+	case "admin":
+		get_password = "admin"
+	case "tibbo":
+		get_password = "1234"
+	case "guest":
+		get_password = "qwerty"
+	end select
+end function
+
+
+'=============================================================
+public function get_http_argument(byref http_req_string as string, byref argument as string) as string
+'This is out own function. We parse "HTTP variables" supplied in the HTTP POST request after
+'login and extract user name and password that you have typed into the HTML form.
+
+	dim x, y as byte
+	
+	x = instr(1, http_req_string, argument,1)
+	if (x = 0) then
+		get_http_argument = ""
+		exit function
+	end if
+	
+	x = x + len(argument)
+	
+	y = instr(x, http_req_string, "&",1)
+	if (y = 0) then
+		y = instr(x, http_req_string, " ",1)	
+		if (y = 0) then
+			y = len(argument)
+		end if
+	end if
+	
+	get_http_argument = mid(http_req_string, x, y - x)
+end function
+
