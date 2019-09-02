@@ -1,5 +1,3 @@
-# CA-HTML-Form
+# HTML Form
 
-To download the most recent project without installing GIT, please press the green "Clone or Download" button and select "Download ZIP".
-
-For more detail about this project, please visit <a href="http://tibbo.com/programmable/applications/web/html_form.html" target="_blank">Project Description Page</a>
+This project implements a simple HTML login form. Enter a username and password in /index.html, then click **login**. The result is displayed on the next HTML page (/login.html).
